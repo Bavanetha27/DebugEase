@@ -16,7 +16,7 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const req = await axios.post("http://localhost:3000/login", {
+      const req = await axios.post("https://debugease-2ovx.onrender.com/login", {
         email: formData.email,
         password: formData.password
       })

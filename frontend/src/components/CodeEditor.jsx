@@ -35,7 +35,7 @@ const CodeEditor = () => {
   const handleDebug = async () => {
     setDebugResult("Running...");
     try {
-      const response = await axios.post("http://localhost:3000/debug", {
+      const response = await axios.post("https://debugease-2ovx.onrender.com/debug", {
         code,
         language: selectedLang,
         input: userInput,
@@ -65,7 +65,7 @@ const CodeEditor = () => {
     }
   
     try {
-      const response = await fetch("http://localhost:3000/explain", {
+      const response = await fetch("https://debugease-2ovx.onrender.com/explain", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,7 +119,6 @@ const CodeEditor = () => {
       </div>
 
       <div className="flex gap-6">
-        {/* Left side: Code Editor */}
         <div className="flex-1">
           <Editor
             height="600px"
@@ -131,7 +130,6 @@ const CodeEditor = () => {
             options={{ fontSize: 14 }}
           />
         </div>
-        {/* Right side: Output, Explanation, and Suggested Fix */}
         <div className="flex-1 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)]"> 
           <div>
             <label className="text-white font-medium">Input for your program:</label>
@@ -143,8 +141,6 @@ const CodeEditor = () => {
               placeholder="Enter input data (e.g., numbers, strings)..."
             />
           </div>
-
-          {/* Run and Debug, Explain Code, Clear Buttons */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
             <motion.button
               className="bg-teal-600 hover:bg-teal-700 w-full py-2 rounded-xl font-semibold flex items-center justify-center gap-2"

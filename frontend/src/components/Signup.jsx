@@ -14,7 +14,7 @@ const Signup = () => {
   const handleSubmit =async (event) =>{
     event.preventDefault();
       try{
-        const req = await axios.post("http://localhost:3000/signup",{
+        const req = await axios.post("https://debugease-2ovx.onrender.com/signup",{
           userName:formData.name,
           email:formData.email,
           password:formData.password
