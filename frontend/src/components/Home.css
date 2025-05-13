@@ -1,0 +1,7 @@
+body {
+  overflow-x: hidden;
+}
+
+.hero{
+    background:linear-gradient(rgb(0, 0, 0,0.4),rgb(0, 0, 0,0.4)),url("../assets/img1.png") no-repeat center;
+}
