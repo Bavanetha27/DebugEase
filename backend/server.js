@@ -6,18 +6,17 @@ const cors = require('cors');
 const axios = require("axios");
 const OpenAI = require('openai');
 const User = require('./models/User');
+const CodeSnippet = require('./models/CodeSnippetSchema');
 require('dotenv').config();
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
   const verifyToken = (req, res, next) => {
     console.log("Middlewate is triggred");
@@ -27,7 +26,6 @@ mongoose.connect(process.env.MONGO_URI)
     }
     try {
       const user = jwt.verify(token, process.env.SECRET_KEY);
-      console.log(user);
       req.user = user
     } catch (error) {
       console.log(error);
@@ -166,8 +164,53 @@ app.post("/debug", async (req, res) => {
     res.status(500).json({ error: "Failed to execute code" });
   }
 });
-// Start Server
+
+app.post('/save', async (req, res) => {
+  const { email, code, language, explanation, suggestion } = req.body;
+
+  if (!email || !code || !language || !explanation || !suggestion) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const newSnippet = new CodeSnippet({
+      user: user._id,
+      code,
+      language,
+      explanation,
+      suggestion
+    });
+
+    await newSnippet.save();
+    res.status(201).json({ message: 'Code snippet saved successfully' });
+  } catch (error) {
+    console.error('Error saving snippet:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/history/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const snippets = await CodeSnippet.find({ user: user._id }).sort({ savedAt: -1 });
+    res.json(snippets);
+  } catch (err) {
+    console.error('Error fetching history:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

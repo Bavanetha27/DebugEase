@@ -26,7 +26,6 @@ const Login = () => {
       });
       localStorage.setItem("token", req.data.token);
       localStorage.setItem("email", req.data.email);
-      console.log(req.data.email);
       var isLoginSuccessful = req.data.loginStatus;
       if (isLoginSuccessful) {
         alert(req.data.response);

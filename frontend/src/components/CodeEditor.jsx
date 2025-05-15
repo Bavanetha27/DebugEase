@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Editor } from "@monaco-editor/react";
 import { motion } from "framer-motion";
+import { FaSave } from 'react-icons/fa';
 import { Copy, Sparkles, Bot, Terminal } from "lucide-react";
 import axios from "axios";
 import "./codeeditor.css";
@@ -87,11 +88,51 @@ const CodeEditor = () => {
     }
   };
   
-  
+  const handleSaveCode = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("User not logged in.");
+      return;
+    }
+
+    try {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      const email = decodedToken.email;
+
+      const payload = {
+        email,
+        code,
+        language: selectedLang,
+        explanation: aiExplanation,
+        suggestion: aiSuggestion
+      };
+
+      const response = await fetch("https://debugease-2ovx.onrender.com/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Code saved successfully!");
+      } else {
+        alert(`Failed to save: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("Error saving code.");
+    }
+  };
+
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(code);
-    alert("✅ Code copied!");
+    alert("Code copied!");
   };
 
   return (
@@ -110,12 +151,22 @@ const CodeEditor = () => {
           ))}
         </select>
         <span className="text-md sm:text-lg">Paste or write your code</span>
-        <button
-          onClick={handleCopyCode}
-          className="text-sm text-teal-300 hover:text-teal-400 flex items-center"
-        >
-          <Copy className="w-4 h-4 mr-1" /> Copy Code
-        </button>
+        <div className="flex items-center gap-4">
+            <button
+              onClick={handleCopyCode}
+              className="text-sm text-teal-300 hover:text-teal-400 flex items-center"
+            >
+              <Copy className="w-4 h-4 mr-1" /> Copy Code
+            </button>
+
+            <button
+              onClick={handleSaveCode}
+              className="text-sm text-yellow-400 hover:text-yellow-500 flex items-center gap-1"
+            >
+              <FaSave />
+              Save
+            </button>
+          </div>
       </div>
 
       <div className="flex gap-6">
@@ -166,8 +217,6 @@ const CodeEditor = () => {
               <Sparkles className="w-4 h-4" /> Clear
             </motion.button>
           </div>
-
-          {/* Output */}
           {debugResult && (
             <motion.div
               className="mt-6 p-4 bg-gray-900 rounded-xl border border-gray-700"
@@ -178,8 +227,6 @@ const CodeEditor = () => {
               <code className="text-green-400 whitespace-pre-wrap">{debugResult}</code>
             </motion.div>
           )}
-
-          {/* AI Explanation */}
           <motion.div
             className="mt-6 p-4 bg-gray-800 rounded-xl border border-gray-700"
             initial={{ opacity: 0, y: 20 }}
@@ -188,8 +235,6 @@ const CodeEditor = () => {
             <h3 className="font-bold text-purple-300 mb-2">🤖 AI Explanation:</h3>
             <p className="text-white whitespace-pre-wrap">{aiExplanation}</p>
           </motion.div>
-
-          {/* Suggested Fix */}
           <motion.div
             className="mt-4 p-4 bg-gray-800 rounded-xl border border-gray-700"
             initial={{ opacity: 0, y: 20 }}
